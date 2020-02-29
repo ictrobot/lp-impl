@@ -19,7 +19,6 @@ class VAR:
 
 def _formula_op(name, impl, arguments):
     class FormulaOp:
-
         def __init__(self, *data):
             if len(data) != arguments:
                 raise ValueError
@@ -37,11 +36,67 @@ def _formula_op(name, impl, arguments):
     return FormulaOp
 
 
-AND = _formula_op("AND", op_and, 2)
-OR = _formula_op("OR", op_or, 2)
-NOT = _formula_op("NOT", op_not, 1)
-IMPLIES = _formula_op("IMPLIES", op_implies, 2)
-IFF = _formula_op("IFF", op_iff, 2)
+class AND(_formula_op("AND", op_and, 2)):
+    @staticmethod
+    def combine(fst, snd):
+        if fst == snd:
+            return fst
+        if fst is True:
+            return snd
+        if snd is True:
+            return fst
+        if fst is False or snd is False:
+            return False
+        return None
+
+
+class OR(_formula_op("OR", op_or, 2)):
+    @staticmethod
+    def combine(fst, snd):
+        if fst == snd:
+            return fst
+        if fst is False:
+            return snd
+        if snd is False:
+            return fst
+        if fst is False or snd is False:
+            return True
+        return None
+
+
+class NOT(_formula_op("NOT", op_not, 1)):
+    @staticmethod
+    def combine(fst):
+        if fst is True:
+            return False
+        if fst is False:
+            return True
+        return None
+
+
+class IMPLIES(_formula_op("IMPLIES", op_implies, 2)):
+    @staticmethod
+    def combine(fst, snd):
+        if fst == snd:
+            return True
+        if fst is True:
+            return snd
+        if fst is False:
+            return True
+        return None
+
+
+class IFF(_formula_op("IFF", op_iff, 2)):
+    @staticmethod
+    def combine(fst, snd):
+        if fst == snd:
+            return True
+        if fst is True:
+            return snd
+        if snd is True:
+            return fst
+        return None
+
 
 __all__ = [
     "VAR", "AND", "OR", "NOT", "IMPLIES", "IFF"

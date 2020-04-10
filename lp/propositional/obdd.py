@@ -19,12 +19,9 @@ class Heap:
         self._data[key] = index
         return index
 
-    def _get_ptr(self, root, p_child_t, p_child_f):
-        return self._data[(root, p_child_t, p_child_f)]
-
-    def _get_make_ptr(self, root, p_child_t, p_child_f):
+    def get_ptr(self, root, p_child_t, p_child_f):
         try:
-            return self._get_ptr(root, p_child_t, p_child_f)
+            return self._data[(root, p_child_t, p_child_f)]
         except KeyError:
             return self._add(root, p_child_t, p_child_f)
 
@@ -41,7 +38,7 @@ class Heap:
         remaining = variables.difference(fixed_variables.keys())
         if not remaining:
             t = formula.evaluate(fixed_variables)
-            return self._get_ptr(t, None, None)
+            return self.get_ptr(t, None, None)
         else:
             my_var, remaining = Heap._first_var(remaining)
 
@@ -56,7 +53,7 @@ class Heap:
             if ptr_t == ptr_f:
                 return ptr_t
             else:
-                return self._get_make_ptr(my_var, ptr_t, ptr_f)
+                return self.get_ptr(my_var, ptr_t, ptr_f)
 
     def from_truth_table(self, formula):
         return self._truth_table(formula, {})
@@ -89,7 +86,7 @@ class Heap:
             if ptr_t == ptr_f:
                 return ptr_t
             else:
-                return self._get_make_ptr(fixed_var, ptr_t, ptr_f)
+                return self.get_ptr(fixed_var, ptr_t, ptr_f)
         elif result in pointers:
             return result
         else:
@@ -101,7 +98,7 @@ class Heap:
 
     def recursive_combine(self, formula):
         if isinstance(formula, VAR):
-            return self._get_make_ptr(formula.var_name, self.true_ptr, self.false_ptr)
+            return self.get_ptr(formula.var_name, self.true_ptr, self.false_ptr)
 
         children = [self.recursive_combine(f) for f in formula.children]
         return self.combine(formula.__class__, *children)
